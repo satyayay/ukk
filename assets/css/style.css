@@ -1,0 +1,190 @@
+/* --- 1. RESET & DASAR --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+body {
+    background-color: #f5f8fa; /* Warna Background Abu Metronic */
+    color: #3f4254;
+}
+
+a { text-decoration: none; }
+
+/* --- 2. LAYOUT UTAMA --- */
+.wrapper {
+    display: flex;
+    width: 100%;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 260px;
+    background-color: #1e1e2d; /* Warna Gelap Metronic */
+    min-height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    transition: 0.3s;
+}
+
+.sidebar-brand {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    padding: 0 25px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 1.2rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.sidebar-menu { padding: 20px 0; }
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    padding: 12px 25px;
+    color: #9899ac;
+    font-weight: 500;
+    transition: 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-menu a:hover, .sidebar-menu a.active {
+    background-color: #1b1b29;
+    color: #fff;
+    border-left-color: #009ef7; /* Biru Aktif */
+}
+
+.sidebar-menu i { margin-right: 12px; font-size: 1.1rem; }
+
+/* KONTEN UTAMA */
+.main-content {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+    display: flex;
+    flex-direction: column;
+}
+
+/* TOPBAR */
+.topbar {
+    height: 70px;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    box-shadow: 0px 10px 30px 0px rgba(82,63,105,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 99;
+}
+
+.container-fluid { padding: 30px; }
+
+/* --- 3. KOMPONEN DASHBOARD (GRID SYSTEM) --- */
+
+/* Baris (Row) untuk menampung kolom */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -15px; /* Kompensasi padding kolom */
+}
+
+/* Kolom Dashboard (4 Kotak Berjejer) */
+.col-3 {
+    width: 25%; /* 4 kotak = 25% x 4 */
+    padding: 15px;
+}
+
+/* Banner Selamat Datang (Lebar Penuh) */
+.col-12 {
+    width: 100%;
+    padding: 15px;
+}
+
+/* Responsif untuk HP */
+@media (max-width: 992px) {
+    .col-3 { width: 50%; } /* Tablet: 2 kotak per baris */
+}
+@media (max-width: 576px) {
+    .sidebar { margin-left: -260px; } /* Sembunyikan sidebar di HP */
+    .main-content { margin-left: 0; width: 100%; }
+    .col-3 { width: 100%; } /* HP: 1 kotak per baris */
+}
+
+/* --- 4. KARTU (CARD) STYLE --- */
+.card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0px 0px 20px 0px rgba(76, 87, 125, 0.02);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: transform 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px); /* Efek melayang dikit pas disorot */
+}
+
+/* Banner Biru Besar */
+.card-welcome {
+    background: linear-gradient(90deg, #009ef7 0%, #007ec2 100%);
+    color: #fff;
+    border-radius: 12px;
+    padding: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-welcome h2 { font-size: 24px; margin-bottom: 10px; }
+.card-welcome p { opacity: 0.8; font-size: 14px; }
+.card-welcome i { font-size: 60px; opacity: 0.3; }
+
+/* Warna-warni Border Kiri Kartu Statistik */
+.border-left-blue { border-left: 5px solid #009ef7; }
+.border-left-red { border-left: 5px solid #f1416c; }
+.border-left-yellow { border-left: 5px solid #ffc700; }
+.border-left-green { border-left: 5px solid #50cd89; }
+
+/* Teks Angka Besar */
+.stat-number {
+    font-size: 32px;
+    font-weight: bold;
+    color: #181c32;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #7e8299;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.stat-desc {
+    font-size: 12px;
+    color: #a1a5b7;
+    margin-top: 5px;
+}
+
+/* Warna Teks Khusus */
+.text-blue { color: #009ef7; }
+.text-red { color: #f1416c; }
+.text-yellow { color: #ffc700; }
+.text-green { color: #50cd89; }
+
+/* --- 5. TABEL --- */
+.table-responsive { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+table th { text-align: left; padding: 12px; background: #f9f9f9; color: #b5b5c3; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+table td { padding: 12px; border-bottom: 1px solid #eff2f5; font-weight: 500; font-size: 14px; }

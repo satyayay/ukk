@@ -29,7 +29,7 @@ $query = mysqli_query($conn, "INSERT INTO input_aspirasi
     VALUES 
     ('$nis', '$id_kategori', '$lokasi', '$ket', '$tgl_pengaduan', '$nama_baru')
 ");
-
+     
 if($query) {
     echo "<script>
             alert('Laporan Berhasil Terkirim!');
