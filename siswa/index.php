@@ -1,6 +1,5 @@
 <?php
 session_start();
-// Cek apakah siswa sudah login
 if (!isset($_SESSION['status']) || $_SESSION['status'] != "login_siswa") {
     header("location:../index.php?pesan=belum_login");
     die();
@@ -9,97 +8,78 @@ if (!isset($_SESSION['status']) || $_SESSION['status'] != "login_siswa") {
 include '../config/koneksi.php';
 include '../layouts/header.php';
 
-// Ambil NIS siswa yang sedang login
 $nis = $_SESSION['username'];
 
-// Query canggih: Gabungkan Tabel Laporan + Kategori + Aspirasi (Respon)
-// Kita pakai LEFT JOIN di aspirasi supaya laporan yang BELUM DIRESPON tetap muncul
-$query = mysqli_query($conn, "SELECT 
-            input_aspirasi.*, 
-            kategori.ket_kategori, 
-            aspirasi.status, 
-            aspirasi.feedback 
-        FROM input_aspirasi 
-        JOIN kategori ON input_aspirasi.id_kategori = kategori.id_kategori
-        LEFT JOIN aspirasi ON input_aspirasi.id_pelaporan = aspirasi.id_pelaporan
-        WHERE input_aspirasi.nis='$nis'
-        ORDER BY input_aspirasi.tgl_pengaduan DESC");
+// HITUNG STATISTIK SISWA
+// 1. Total Laporan Saya
+$sql_total = mysqli_query($conn, "SELECT COUNT(*) as total FROM input_aspirasi WHERE nis='$nis'");
+$row_total = mysqli_fetch_assoc($sql_total);
+$total_laporan = $row_total['total'];
+
+// 2. Total Selesai
+$sql_selesai = mysqli_query($conn, "SELECT COUNT(*) as total FROM input_aspirasi JOIN aspirasi ON input_aspirasi.id_pelaporan = aspirasi.id_pelaporan WHERE input_aspirasi.nis='$nis' AND aspirasi.status='selesai'");
+$row_selesai = mysqli_fetch_assoc($sql_selesai);
+$total_selesai = $row_selesai['total'];
+
+// 3. Total Proses
+$sql_proses = mysqli_query($conn, "SELECT COUNT(*) as total FROM input_aspirasi JOIN aspirasi ON input_aspirasi.id_pelaporan = aspirasi.id_pelaporan WHERE input_aspirasi.nis='$nis' AND aspirasi.status='proses'");
+$row_proses = mysqli_fetch_assoc($sql_proses);
+$total_proses = $row_proses['total'];
+
+// 4. Menunggu
+$total_menunggu = $total_laporan - ($total_selesai + $total_proses);
 ?>
 
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3>👋 Halo, <?php echo $_SESSION['nama']; ?></h3>
-                <a href="tulis_pengaduan.php" class="btn btn-primary shadow">
-                    + Tulis Laporan Baru
-                </a>
-            </div>
-
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 text-primary">Riwayat Pengaduan Saya</h5>
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card card-custom bg-info text-white border-0">
+            <div class="card-body-custom d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold">Halo, <?php echo $_SESSION['nama']; ?>!</h2>
+                    <p class="mb-0 op-7">Selamat datang di panel siswa. Laporkan kerusakan sarana sekolah disini.</p>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>No</th>
-                                    <th>Tanggal</th>
-                                    <th>Kategori</th>
-                                    <th>Isi Laporan</th>
-                                    <th>Status</th>
-                                    <th>Tanggapan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php 
-                                $no = 1;
-                                while($data = mysqli_fetch_array($query)) { 
-                                ?>
-                                <tr>
-                                    <td><?php echo $no++; ?></td>
-                                    <td><?php echo $data['tgl_pengaduan']; ?></td>
-                                    <td><?php echo $data['ket_kategori']; ?></td>
-                                    <td>
-                                        <p class="mb-1 fw-bold"><?php echo $data['lokasi']; ?></p>
-                                        <small class="text-muted"><?php echo $data['ket']; ?></small>
-                                        
-                                        <?php if($data['foto'] != "") { ?>
-                                            <br>
-                                            <img src="../assets/foto_bukti/<?php echo $data['foto']; ?>" width="80" class="mt-2 rounded border">
-                                        <?php } ?>
-                                    </td>
-                                    
-                                    <td>
-                                        <?php if($data['status'] == 'selesai') { ?>
-                                            <span class="badge bg-success">Selesai</span>
-                                        <?php } elseif($data['status'] == 'proses') { ?>
-                                            <span class="badge bg-primary">Diproses</span>
-                                        <?php } else { ?>
-                                            <span class="badge bg-danger">Menunggu</span>
-                                        <?php } ?>
-                                    </td>
-                                    
-                                    <td>
-                                        <?php 
-                                        if ($data['feedback'] != null) {
-                                            echo $data['feedback'];
-                                        } else {
-                                            echo "<i class='text-muted'>Belum ada tanggapan</i>";
-                                        }
-                                        ?>
-                                    </td>
-                                </tr>
-                                <?php } ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <i class="bi bi-person-workspace fs-1 opacity-50"></i>
             </div>
+        </div>
+    </div>
 
+    <div class="col-md-3">
+        <div class="card card-custom border-start border-4 border-primary h-100">
+            <div class="card-body-custom p-4">
+                <div class="fs-6 text-muted mb-1">Total Laporan</div>
+                <div class="fs-2 fw-bold text-dark"><?php echo $total_laporan; ?></div>
+                <div class="text-primary small fw-bold mt-2">Pernah Dikirim</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card card-custom border-start border-4 border-warning h-100">
+            <div class="card-body-custom p-4">
+                <div class="fs-6 text-muted mb-1">Sedang Proses</div>
+                <div class="fs-2 fw-bold text-dark"><?php echo $total_proses; ?></div>
+                <div class="text-warning small fw-bold mt-2">Tindak Lanjut</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card card-custom border-start border-4 border-success h-100">
+            <div class="card-body-custom p-4">
+                <div class="fs-6 text-muted mb-1">Selesai</div>
+                <div class="fs-2 fw-bold text-dark"><?php echo $total_selesai; ?></div>
+                <div class="text-success small fw-bold mt-2">Sudah Beres</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card card-custom border-start border-4 border-secondary h-100">
+            <div class="card-body-custom p-4">
+                <div class="fs-6 text-muted mb-1">Menunggu</div>
+                <div class="fs-2 fw-bold text-dark"><?php echo $total_menunggu; ?></div>
+                <div class="text-muted small fw-bold mt-2">Belum Direspon</div>
+            </div>
         </div>
     </div>
 </div>
