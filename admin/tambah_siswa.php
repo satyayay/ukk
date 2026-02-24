@@ -13,8 +13,8 @@ if (isset($_POST['submit'])) {
     $nama = $_POST['nama'];
     $kelas = $_POST['kelas'];
     // Default password sama dengan NIS
-    $password = md5($nis); 
-    $telp = $_POST['telp']; // Jika ada kolom telp
+    // $password = md5($nis); 
+    // $telp = $_POST['telp']; // Jika ada kolom telp
     
     // Cek NIS duplikat
     $cek = mysqli_query($conn, "SELECT * FROM siswa WHERE nis='$nis'");
@@ -22,7 +22,7 @@ if (isset($_POST['submit'])) {
         echo "<script>alert('NIS sudah terdaftar!');</script>";
     } else {
         // Query Simpan
-        $query = mysqli_query($conn, "INSERT INTO siswa (nis, nama, password, telp, kelas) VALUES ('$nis', '$nama', '$password', '$telp', '$kelas')");
+        $query = mysqli_query($conn, "INSERT INTO siswa (nis, nama_siswa, kelas) VALUES ('$nis', '$nama', '$kelas')");
         if ($query) {
             echo "<script>alert('Data Berhasil Disimpan'); window.location='siswa.php';</script>";
         } else {
@@ -52,10 +52,6 @@ if (isset($_POST['submit'])) {
                         <div class="mb-3">
                             <label class="form-label fw-bold">Kelas</label>
                             <input type="text" name="kelas" class="form-control" placeholder="Contoh: XII RPL 1" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">No. Telepon</label>
-                            <input type="number" name="telp" class="form-control" placeholder="08..." required>
                         </div>
                         <div class="d-flex justify-content-end gap-2">
                             <a href="siswa.php" class="btn btn-light fw-bold">Batal</a>
