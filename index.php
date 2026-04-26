@@ -1,83 +1,65 @@
+<?php
+/**
+ * index.php - Halaman Login
+ * Halaman utama sistem, menampilkan form login
+ */
+require_once __DIR__ . '/config/koneksi.php';
+require_once __DIR__ . '/config/functions.php';
+
+// Jika sudah login, redirect ke dashboard
+if (isset($_SESSION['user_id'])) {
+    header('Location: /dashboard.php');
+    exit;
+}
+
+$error = '';
+if (isset($_SESSION['flash'])) {
+    $flash = $_SESSION['flash'];
+    unset($_SESSION['flash']);
+    $error = $flash['message'];
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | E-Pengaduan</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f5f8fa; }
-        .login-card {
-            border: none;
-            border-radius: 1rem;
-            box-shadow: 0px 0px 30px 0px rgba(82,63,105,0.05);
-            background: #fff;
-            padding: 2rem;
-        }
-        .form-control {
-            background-color: #f5f8fa;
-            border: 1px solid #f5f8fa;
-            color: #5e6278;
-            padding: 0.8rem 1rem;
-            font-weight: 500;
-        }
-        .form-control:focus {
-            background-color: #eef3f7;
-            border-color: #eef3f7;
-            box-shadow: none;
-        }
-        .btn-primary {
-            background-color: #009ef7;
-            border-color: #009ef7;
-            padding: 0.8rem;
-            font-weight: 600;
-        }
-        .btn-primary:hover { background-color: #0095e8; }
-    </style>
+    <title>Login - E-Pengaduan</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
 </head>
-<body class="d-flex align-items-center justify-content-center vh-100">
-
-<div class="col-md-4">
-    <div class="text-center mb-4">
-        <h2 class="fw-bolder text-dark">Selamat Datang</h2>
-        <div class="text-muted">Silakan login untuk melanjutkan</div>
-    </div>
-    
-    <div class="login-card">
-        <?php 
-        if(isset($_GET['pesan']) && $_GET['pesan']=="gagal"){
-            echo "<div class='alert alert-danger border-0 small py-2 px-3 mb-4'>Username/Password salah!</div>";
-        }
-        ?>
-
-        <form action="cek_login.php" method="POST">
-            <div class="mb-3">
-                <label class="form-label fw-bold small text-muted">NIS / USERNAME</label>
-                <input type="text" name="username" class="form-control" autocomplete="off" required>
-            </div>
-            
-            <div class="mb-4">
-                <label class="form-label fw-bold small text-muted">PASSWORD</label>
-                <input type="password" name="password" class="form-control" required>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                </div>
+                <h1>E-Pengaduan</h1>
+                <p>Sistem Helpdesk Layanan Internal</p>
             </div>
 
-            <div class="mb-4">
-                <label class="form-label fw-bold small text-muted">LOGIN SEBAGAI</label>
-                <select name="level" class="form-select border-0 bg-light py-2 fw-bold text-muted">
-                    <option value="siswa">Siswa</option>
-                    <option value="admin">Petugas / Admin</option>
-                </select>
+            <?php if ($error): ?>
+                <div class="alert alert-error"><?= e($error) ?></div>
+            <?php endif; ?>
+
+            <form action="/proses_login.php" method="POST" class="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Masukkan username" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Masukkan password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Masuk</button>
+            </form>
+
+            <div class="login-footer">
+                <p>Hubungi administrator jika Anda belum memiliki akun.</p>
             </div>
-
-            <button type="submit" class="btn btn-primary w-100">Masuk Aplikasi</button>
-        </form>
+        </div>
     </div>
-    
-    <div class="text-center mt-4">
-        <small class="text-muted">&copy; 2026 UKK RPL - Paket 3</small>
-    </div>
-</div>
-
 </body>
 </html>

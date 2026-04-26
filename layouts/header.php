@@ -1,268 +1,97 @@
 <?php
-// LOGIKA FOTO PROFIL
-if(isset($conn) && isset($_SESSION['status'])) {
-    $foto_profil_session = "";
-    
-    // Jika SISWA yang login
-    if($_SESSION['status'] == "login_siswa") {
-        $user_id = $_SESSION['username'];
-        $q_profil = mysqli_query($conn, "SELECT foto_profil FROM siswa WHERE nis='$user_id'");
-        if($d_profil = mysqli_fetch_assoc($q_profil)) {
-            $foto_profil_session = $d_profil['foto_profil'];
-        }
-    } 
-    // Jika ADMIN yang login
-    elseif($_SESSION['status'] == "login_admin") {
-        $user_id = $_SESSION['username'];
-        $q_profil = mysqli_query($conn, "SELECT foto_profil FROM admin WHERE username='$user_id'");
-        if($d_profil = mysqli_fetch_assoc($q_profil)) {
-            $foto_profil_session = $d_profil['foto_profil'];
-        }
-    }
-}
+/**
+ * header.php - Layout header dengan sidebar navigasi
+ * Digunakan di semua halaman setelah login
+ */
+require_once __DIR__ . '/../config/koneksi.php';
+require_once __DIR__ . '/../config/functions.php';
+cek_login();
+
+$current_page = basename($_SERVER['PHP_SELF']);
+$peran = $_SESSION['peran'];
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Pengaduan | Dashboard</title>
-    
-    <link rel="shortcut icon" href="../assets/logo.png" type="image/x-icon">
-    <link rel="apple-touch-icon" href="../assets/logo.png">
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bs-primary: #009ef7; /* Biru Metronic */
-            --bs-body-bg: #f5f8fa; /* Abu-abu muda */
-            --sidebar-width: 260px;
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bs-body-bg);
-            overflow-x: hidden;
-        }
-
-        /* --- SIDEBAR STYLE --- */
-        .sidebar {
-            width: var(--sidebar-width);
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background: #1e1e2d; /* Warna Gelap */
-            color: #9899ac;
-            z-index: 1000;
-            transition: all 0.3s;
-        }
-        
-        .sidebar.active { margin-left: 0 !important; }
-
-        .sidebar-brand {
-            height: 70px;
-            display: flex;
-            align-items: center;
-            padding: 0 25px;
-            font-weight: 700;
-            color: #fff;
-            font-size: 1.2rem;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .sidebar-menu { padding: 20px 0; }
-
-        .menu-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 25px;
-            color: #a2a3b7;
-            text-decoration: none;
-            font-weight: 500;
-            transition: 0.2s;
-            border-left: 3px solid transparent;
-        }
-
-        .menu-item:hover, .menu-item.active {
-            color: #fff;
-            background-color: rgba(255,255,255,0.05);
-            border-left: 3px solid var(--bs-primary);
-        }
-
-        .menu-item i { margin-right: 12px; font-size: 1.1rem; }
-
-        /* --- MAIN CONTENT STYLE --- */
-        .main-content {
-            margin-left: var(--sidebar-width);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s;
-        }
-
-        /* --- TOPBAR STYLE --- */
-        .topbar {
-            height: 70px;
-            background: white;
-            box-shadow: 0px 10px 30px 0px rgba(82,63,105,0.05);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 30px;
-            position: sticky;
-            top: 0;
-            z-index: 99;
-        }
-
-        /* --- CUSTOM CARD STYLE --- */
-        .card-custom {
-            border: 0;
-            box-shadow: 0px 0px 20px 0px rgba(76, 87, 125, 0.02);
-            border-radius: 0.65rem;
-            background: white;
-        }
-        
-        .card-header-custom {
-            background: transparent;
-            border-bottom: 1px solid #eff2f5;
-            padding: 1.5rem 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .card-body-custom { padding: 2rem; }
-
-        /* RESPONSIVE MOBILE */
-        @media (max-width: 768px) {
-            .sidebar { margin-left: calc(-1 * var(--sidebar-width)); }
-            .main-content { margin-left: 0; }
-        }
-    </style>
+    <title><?= e($page_title ?? 'E-Pengaduan') ?> - E-Pengaduan</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
 </head>
-<body>
-
-<nav class="sidebar">
-    <div class="sidebar-brand">
-        <div class="d-flex align-items-center">
-            
-            <img src="../assets/logo.png" alt="Logo" style="height: 35px; margin-right: 10px;">
-            
-            <span class="fs-4">LaporPak!</span>
-        </div>
-        
-        <div class="d-md-none ms-auto cursor-pointer" onclick="document.querySelector('.sidebar').classList.remove('active')">
-            <i class="bi bi-x-lg text-muted"></i>
-        </div>
-    </div>
-    
-    <div class="sidebar-menu">
-        <div class="px-4 mb-2 text-uppercase fs-8 fw-bold text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Menu Utama</div>
-
-        <?php 
-        // Deteksi halaman aktif
-        $page = basename($_SERVER['PHP_SELF']); 
-        ?>
-
-        <?php if(isset($_SESSION['status']) && $_SESSION['status'] == "login_admin"): ?>
-            <a href="../admin/index.php" class="menu-item <?php echo ($page == 'index.php') ? 'active' : ''; ?>">
-                <i class="bi bi-grid-fill"></i> Dashboard
-            </a>
-            <a href="../admin/siswa.php" class="menu-item <?php echo ($page == 'siswa.php' || $page == 'tambah_siswa.php' || $page == 'edit_siswa.php') ? 'active' : ''; ?>">
-                <i class="bi bi-people-fill"></i> Data Siswa
-            </a>
-            <a href="../admin/laporan.php" class="menu-item <?php echo ($page == 'laporan.php' || $page == 'tanggapan.php') ? 'active' : ''; ?>">
-                <i class="bi bi-chat-left-text-fill"></i> Laporan Masuk
-            </a>
-
-        <?php elseif(isset($_SESSION['status']) && $_SESSION['status'] == "login_siswa"): ?>
-            <a href="../siswa/index.php" class="menu-item <?php echo ($page == 'index.php') ? 'active' : ''; ?>">
-                <i class="bi bi-grid-fill"></i> Dashboard
-            </a>
-            <a href="../siswa/tulis_pengaduan.php" class="menu-item <?php echo ($page == 'tulis_pengaduan.php') ? 'active' : ''; ?>">
-                <i class="bi bi-pencil-square"></i> Tulis Laporan
-            </a>
-            <a href="../siswa/riwayat.php" class="menu-item <?php echo ($page == 'riwayat.php' || $page == 'edit_pengaduan.php') ? 'active' : ''; ?>">
-                <i class="bi bi-clock-history"></i> Riwayat Pengaduan
-            </a>
-        <?php endif; ?>
-
-        <div class="px-4 mt-4 mb-2 text-uppercase fs-8 fw-bold text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Akun</div>
-        <a href="../logout.php" class="menu-item text-danger">
-            <i class="bi bi-box-arrow-right"></i> Logout
-        </a>
-    </div>
-</nav>
-
-<div class="main-content">
-    
-    <header class="topbar">
-        <div class="d-flex align-items-center">
-            <button class="btn btn-light btn-sm d-md-none me-3" onclick="document.querySelector('.sidebar').classList.toggle('active')">
-                <i class="bi bi-list fs-2"></i>
-            </button>
-            <h5 class="m-0 fw-bold text-dark">Dashboard</h5>
-        </div>
-
-        <div class="dropdown">
-            <div class="d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
-                <div class="text-end me-3 d-none d-md-block">
-                    <span class="d-block fw-bold text-dark fs-6">
-                        <?php echo isset($_SESSION['nama']) ? $_SESSION['nama'] : 'User'; ?>
-                    </span>
-                    <span class="d-block text-muted" style="font-size: 0.75rem;">
-                        <?php echo isset($_SESSION['status']) && $_SESSION['status'] == 'login_admin' ? 'Administrator' : 'Siswa'; ?>
-                    </span>
-                </div>
-                
-                <?php if(isset($foto_profil_session) && $foto_profil_session != ""): ?>
-                    <img src="../assets/foto_profil/<?php echo $foto_profil_session; ?>" class="rounded-circle border border-primary" style="width: 40px; height: 40px; object-fit: cover;">
-                <?php else: ?>
-                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center text-primary fw-bold border border-primary border-opacity-25" style="width: 40px; height: 40px;">
-                        <?php echo substr(isset($_SESSION['nama']) ? $_SESSION['nama'] : 'U', 0, 1); ?>
-                    </div>
-                <?php endif; ?>
-
+<body class="app-body">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <span>E-Pengaduan</span>
             </div>
-
-            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-3 p-2" style="width: 220px;">
-                <li>
-                    <div class="d-flex align-items-center px-3 py-2 border-bottom mb-2">
-                        <div class="d-flex flex-column">
-                            <span class="fw-bold text-dark"><?php echo isset($_SESSION['nama']) ? $_SESSION['nama'] : 'User'; ?></span>
-                            <span class="text-muted small text-truncate"><?php echo isset($_SESSION['username']) ? $_SESSION['username'] : ''; ?></span>
-                        </div>
-                    </div>
-                </li>
-                
-                <?php if(isset($_SESSION['status']) && $_SESSION['status'] == "login_siswa"): ?>
-                <li>
-                    <a class="dropdown-item rounded py-2 fw-bold" href="../siswa/profil.php">
-                        <i class="bi bi-person-fill me-2"></i> Profil Saya
-                    </a>
-                </li>
-                <?php endif; ?>
-
-                <?php if(isset($_SESSION['status']) && $_SESSION['status'] == "login_admin"): ?>
-                <li>
-                    <a class="dropdown-item rounded py-2 fw-bold" href="../admin/profil.php">
-                        <i class="bi bi-person-fill me-2"></i> Profil Admin
-                    </a>
-                </li>
-                <?php endif; ?>
-
-                <li>
-                    <a class="dropdown-item rounded py-2 text-danger fw-bold" href="../logout.php">
-                        <i class="bi bi-box-arrow-right me-2"></i> Keluar Aplikasi
-                    </a>
-                </li>
-            </ul>
         </div>
-    </header>
 
-    <div class="container-fluid p-4">
+        <nav class="sidebar-nav">
+            <a href="/dashboard.php" class="nav-link <?= $current_page === 'dashboard.php' ? 'active' : '' ?>">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>
+                <span>Dashboard</span>
+            </a>
+
+            <?php if ($peran === 'pelapor'): ?>
+                <a href="/pelapor/buat_pengaduan.php" class="nav-link <?= $current_page === 'buat_pengaduan.php' ? 'active' : '' ?>">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 4v16m8-8H4"/></svg>
+                    <span>Buat Pengaduan</span>
+                </a>
+                <a href="/pelapor/riwayat.php" class="nav-link <?= $current_page === 'riwayat.php' ? 'active' : '' ?>">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                    <span>Riwayat Pengaduan</span>
+                </a>
+            <?php endif; ?>
+
+            <?php if ($peran === 'petugas'): ?>
+                <a href="/petugas/daftar_pengaduan.php" class="nav-link <?= $current_page === 'daftar_pengaduan.php' ? 'active' : '' ?>">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    <span>Pengaduan Ditugaskan</span>
+                </a>
+            <?php endif; ?>
+
+            <?php if ($peran === 'admin'): ?>
+                <a href="/admin/semua_pengaduan.php" class="nav-link <?= $current_page === 'semua_pengaduan.php' ? 'active' : '' ?>">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    <span>Semua Pengaduan</span>
+                </a>
+                <a href="/admin/kelola_pengguna.php" class="nav-link <?= $current_page === 'kelola_pengguna.php' ? 'active' : '' ?>">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    <span>Kelola Pengguna</span>
+                </a>
+                <a href="/admin/kelola_kategori.php" class="nav-link <?= $current_page === 'kelola_kategori.php' ? 'active' : '' ?>">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
+                    <span>Kelola Kategori</span>
+                </a>
+            <?php endif; ?>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar"><?= strtoupper(substr($_SESSION['nama'], 0, 1)) ?></div>
+                <div class="user-details">
+                    <span class="user-name"><?= e($_SESSION['nama']) ?></span>
+                    <span class="user-role"><?= peran_label($_SESSION['peran']) ?></span>
+                </div>
+            </div>
+            <a href="/logout.php" class="btn-logout" title="Keluar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="topbar">
+            <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <h2 class="page-title"><?= e($page_title ?? 'Dashboard') ?></h2>
+        </header>
+
+        <div class="content-area">
+            <?= tampilkan_flash() ?>
